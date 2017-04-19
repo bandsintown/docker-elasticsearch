@@ -22,10 +22,10 @@ export ES_DOWNLOAD_URL
 export ES_JAVA_OPTS
 export VERSIONED_IMAGE
 
-.PHONY: build clean cluster-unicast-test pull-latest-baseimage push run-es-cluster run-es-single single-node-test test
+.PHONY: build clean  pull-latest-baseimage push run-es-cluster run-es-single single-node-test test
 
 # Default target, build *and* run tests
-test: single-node-test cluster-unicast-test
+test: single-node-test 
 
 # Common target to ensure BASEIMAGE is latest
 pull-latest-baseimage:
@@ -48,8 +48,8 @@ single-node-test: pull-latest-baseimage clean
 	docker-compose run tester
 	docker-compose down -v
 
-cluster-unicast-test: export ES_NODE_COUNT=2
-cluster-unicast-test: pull-latest-baseimage clean
+: export ES_NODE_COUNT=2
+: pull-latest-baseimage clean
 	docker-compose up -d --build elasticsearch1 elasticsearch2
 	docker-compose build --pull tester
 	docker-compose run tester
