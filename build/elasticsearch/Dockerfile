@@ -1,5 +1,13 @@
-FROM docker.elastic.co/elasticsearch/elasticsearch-alpine-base:latest
-MAINTAINER Elastic Docker Team <docker@elastic.co>
+FROM bandsintown/alpine:3.5
+
+# Install Java 8
+RUN apk update && \
+    apk upgrade && \
+    apk add openjdk8 openssl && \
+    rm -rf /var/cache/apk/*
+
+# Install elasticsearch user
+RUN adduser -D -u 1000 -h /usr/share/elasticsearch elasticsearch
 
 ARG ELASTIC_VERSION
 ARG ES_DOWNLOAD_URL
@@ -7,6 +15,7 @@ ARG ES_JAVA_OPTS
 
 ENV PATH /usr/share/elasticsearch/bin:$PATH
 ENV JAVA_HOME /usr/lib/jvm/java-1.8-openjdk
+ENV ES_JAVA_OPTS=$ES_JAVA_OPTS
 
 WORKDIR /usr/share/elasticsearch
 
@@ -27,8 +36,13 @@ RUN set -ex && for esdirs in config data logs; do \
 
 USER elasticsearch
 
-# Install xpack
-RUN eval ${ES_JAVA_OPTS:-} elasticsearch-plugin install --batch x-pack
+# Install xpack, discovery-ec2 and consul-discovery plugins
+RUN elasticsearch-plugin install --batch x-pack && \
+    elasticsearch-plugin install discovery-ec2 && \
+    wget https://github.com/vvanholl/elasticsearch-consul-discovery/releases/download/${ELASTIC_VERSION}/elasticsearch-consul-discovery-${ELASTIC_VERSION}.zip && \
+    bin/elasticsearch-plugin install file:////usr/share/elasticsearch/elasticsearch-consul-discovery-${ELASTIC_VERSION}.zip && \
+    rm elasticsearch-consul-discovery-${ELASTIC_VERSION}.zip
+
 
 COPY elasticsearch.yml config/
 COPY log4j2.properties config/
@@ -38,7 +52,6 @@ USER root
 RUN chown elasticsearch:elasticsearch config/elasticsearch.yml config/log4j2.properties bin/es-docker && \
     chmod 0750 bin/es-docker
 
-USER elasticsearch
-CMD ["/bin/bash", "bin/es-docker"]
+CMD ["su-exec", "elasticsearch", "bin/es-docker"]
 
 EXPOSE 9200 9300
