@@ -16,6 +16,7 @@ ARG ES_JAVA_OPTS
 ENV PATH /usr/share/elasticsearch/bin:$PATH
 ENV JAVA_HOME /usr/lib/jvm/java-1.8-openjdk
 ENV ES_JAVA_OPTS=$ES_JAVA_OPTS
+ENV DISABLE_CONSUL=true
 
 WORKDIR /usr/share/elasticsearch
 
