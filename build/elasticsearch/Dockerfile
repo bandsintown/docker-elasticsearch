@@ -40,9 +40,9 @@ USER elasticsearch
 # Install xpack, discovery-ec2 and consul-discovery plugins
 RUN elasticsearch-plugin install --batch x-pack && \
     elasticsearch-plugin install discovery-ec2 && \
-    wget https://github.com/vvanholl/elasticsearch-consul-discovery/releases/download/${ELASTIC_VERSION}/elasticsearch-consul-discovery-${ELASTIC_VERSION}.zip && \
-    bin/elasticsearch-plugin install file:////usr/share/elasticsearch/elasticsearch-consul-discovery-${ELASTIC_VERSION}.zip && \
-    rm elasticsearch-consul-discovery-${ELASTIC_VERSION}.zip
+    wget https://github.com/bandsintown/elasticsearch-consul-discovery/releases/download/5.3.0-b01/elasticsearch-consul-discovery-5.3.0.zip && \
+    bin/elasticsearch-plugin install file:////usr/share/elasticsearch/elasticsearch-consul-discovery-5.3.0.zip && \
+    rm elasticsearch-consul-discovery-5.3.0.zip
 
 
 COPY elasticsearch.yml config/
