@@ -1,0 +1,28 @@
+# This docker-compose yml describe the services to run locally
+version: '2'
+
+# Defines the services
+services:
+
+  # Test image (packages, services, scripts)
+  test-image:
+    image: bandsintown/elasticsearch-test:${VERSION}
+    command: dockerize -wait http://test-consul:8500 -timeout 10s bats /tests/image
+    depends_on:
+      - test-consul
+    environment:
+      - VERSION=${VERSION}
+      - CONSUL_HTTP_ADDR=test-consul:8500
+
+  # Consul
+  test-consul:
+    image: consul
+    command: "agent -dev -client 0.0.0.0 -ui"
+    ports:
+      - 8500
+    environment:
+      - CONSUL_BIND_INTERFACE=eth0
+
+    # We disable the log in order to increase lisibility in CI
+    logging:
+      driver: "none"
